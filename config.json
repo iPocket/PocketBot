@@ -8,9 +8,7 @@
 	"channels":["#botters-test", "#botters", "#mcrafters", "#TahaS", "##powder-bots", "##socialanalysis", "#zannode"],
 	"prefix":"=>",
 	"levels":{
-		":PocketKiller!PocketKill@unaffiliated/pocketkiller":4,
-		":Tims_Tech!~Tims_Tech@unaffiliated/tims-tech/x-7957857":2,
-		":gagi_shmagi!~gagi@5.102.253.1":1
+		":PocketKiller!PocketKill@unaffiliated/pocketkiller":4
 	},
 	"commands":[
 		"Command\\Help",
