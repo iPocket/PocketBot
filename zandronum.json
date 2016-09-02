@@ -8,8 +8,7 @@
 	"channels":["#sentientmushes", "#bottest", "#channel"],
 	"prefix":"=>",
 	"levels":{
-		":PocketKiller!~PocketKille@unaffiliated/pocketkiller":4,
-		":FoxBoy!~FoxBoy@your.fox.pal":2
+		":PocketKiller!~PocketKille@unaffiliated/pocketkiller":4
 	},
 	"commands":[
 		"Command\\Help",
