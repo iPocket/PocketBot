@@ -1,6 +1,7 @@
 # PocketBot
 PocketBot is an IRC (Internet Relay Chat) Bot written in PHP.
-Main channel of PocketBot is #PocketBot (on freenode).
+
+The main channel of PocketBot is #PocketBot (on freenode).
 
 ##Installation:
 - Go to windows.php.net and get your PHP binary.
@@ -30,3 +31,8 @@ Windows:
 <PocketKiller> =>stats
 <PocketBot> I've been running since Friday 2nd September @ 09:09:43 PM and been running for 40 minutes 28 seconds and sent 2125 Bytes of data to server and recieved 21764 Bytes of data from server with no error(s) occured.
 ```
+##Libraries used:
+- mbstring
+- OpenSSL
+- curl
+- pthreads
