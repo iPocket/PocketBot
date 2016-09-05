@@ -30,6 +30,12 @@ Windows:
 <PocketBot> I've been coded by PocketKiller using PHP 5.6.12 with no libraries used.
 <PocketKiller> =>stats
 <PocketBot> I've been running since Friday 2nd September @ 09:09:43 PM and been running for 40 minutes 28 seconds and sent 2125 Bytes of data to server and recieved 21764 Bytes of data from server with no error(s) occured.
+<PocketKiller> =>title google.com
+<PocketBot> Title: Google
+<PocketKiller> =>title http://irc-bot-science.clsr.net/longheaders
+<PocketBot> Error: Operation timed out after 9735 milliseconds with 0 bytes received. Error 28
+<PocketKiller> =>title http://irc-bot-science.clsr.net/notitle
+<PocketBot> Title: Error: No title for that URL
 ```
 ##Libraries used:
 - mbstring
