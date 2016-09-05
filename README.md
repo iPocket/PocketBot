@@ -33,9 +33,11 @@ Windows:
 <PocketKiller> =>title google.com
 <PocketBot> Title: Google
 <PocketKiller> =>title http://irc-bot-science.clsr.net/longheaders
-<PocketBot> Error: Operation timed out after 9735 milliseconds with 0 bytes received. Error 28
+<PocketBot> Error: Operation timed out after 9735 milliseconds with 0 bytes received. Error 28
 <PocketKiller> =>title http://irc-bot-science.clsr.net/notitle
 <PocketBot> Title: Error: No title for that URL
+<PocketKiller> =>title http://irc-bot-science.clsr.net/redirect
+<PocketBot> Error: Maximium (10) redirects followed. Error 47
 ```
 ##Libraries used:
 - mbstring
