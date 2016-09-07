@@ -17,7 +17,7 @@ class Client extends \Threaded {
 
 		$this->socket = fsockopen(($this->bot->useSSL() ? "ssl://" . $this->bot->getIP() : $this->bot->getIP()), $this->bot->getPort());
 		if(!$this->isConnected()) {
-			throw new \Exception( 'Unable to connect to server via fsockopen with server: "' . $this->server . '" and port: "' . $this->port . '".' );
+			throw new \Exception( 'Unable to connect to server via fsockopen with server: "' . $this->bot->getIP() . '" and port: "' . $this->bot->getPort() . '".' );
 			return false;
         }
 		if(!empty($this->bot->getPassword())) $this->sendData("PASS " . $this->bot->getPassword());
@@ -48,7 +48,14 @@ class Client extends \Threaded {
 	}
 
 	public function sendData($data, $log = true){
-		if($log) $this->bot->getLogger()->log($data, "OUTGOING", $this->bot->getServer());
+		if($log == true){
+			$this->bot->getLogger()->log($data, "OUTGOING", $this->bot->getServer());
+		} elseif($log == null){
+
+		} else {
+			$this->bot->getLogger()->log($log, "OUTGOING", $this->bot->getServer());
+		}
+
 		fwrite($this->socket, $data . "\r\n");
 		//$this->bot->upload += strlen($data);
 		return;

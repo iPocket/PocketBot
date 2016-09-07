@@ -248,7 +248,13 @@ class Bot {
 					if($args[3]{0} == ":") $args[3] = substr($args[3], 1);
 					$msg = array_slice($args, 3);
 					if ($source == $this->getNick()) $source = $this->getUser($data);
-					$this->getLogger()->log(Terminal::$COLOR_PURPLE . Terminal::$FORMAT_BOLD . "[$args[2]] " . Terminal::$FORMAT_RESET . Terminal::$COLOR_DARK_AQUA . "<" . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . "> " . implode(" ", array_slice($args, 3)), "INCOMING", $this->getServer());
+
+					if(preg_match("\01ACTION(.*)\01", $data, $matches) == false){
+						$this->getLogger()->log(Terminal::$COLOR_PURPLE . Terminal::$FORMAT_BOLD . "[$args[2]] " . Terminal::$FORMAT_RESET . Terminal::$COLOR_DARK_AQUA . "<" . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . "> " . implode(" ", array_slice($args, 3)), "INCOMING", $this->getServer());
+					} else {
+						$this->getLogger()->log(Terminal::$COLOR_PURPLE . Terminal::$FORMAT_BOLD . "[$args[2]] " . Terminal::$FORMAT_RESET . Terminal::$COLOR_DARK_AQUA . "*" . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . " " . $matches[1], "INCOMING", $this->getServer());
+					}
+
 
 					if(stripos($msg[0], $this->getPrefix()) === 0){
 						$command = ucfirst(strtolower(substr($msg[0], strlen($this->getPrefix()))));
@@ -273,7 +279,7 @@ class Bot {
 					if(isset($args[3]))
 						if($args[3]{0} == ":") $args[3] = substr($args[3], 1);
 
-					$this->getLogger()->log(Terminal::$COLOR_DARK_AQUA . "\"" . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . "\" has joined " . Terminal::$COLOR_PURPLE . $args[2] . Terminal::$COLOR_WHITE, "INCOMING", $this->getServer());
+					$this->getLogger()->log(Terminal::$COLOR_DARK_AQUA . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . " has joined " . Terminal::$COLOR_PURPLE . $args[2] . Terminal::$COLOR_WHITE, "INCOMING", $this->getServer());
 					$log = false;
 					break;
 
@@ -281,18 +287,75 @@ class Bot {
 					if(isset($args[3]))
 						if($args[3]{0} == ":") $args[3] = substr($args[3], 1);
 
-					$this->getLogger()->log(Terminal::$COLOR_DARK_AQUA . "\"" . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . "\" has left " . Terminal::$COLOR_PURPLE . $args[2] . Terminal::$COLOR_WHITE . (isset($args[3]) ? " " . implode(" ", array_slice($args, 3)) : ""), "INCOMING", $this->getServer());
+					$this->getLogger()->log(Terminal::$COLOR_DARK_AQUA . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . " has left " . Terminal::$COLOR_PURPLE . $args[2] . Terminal::$COLOR_GREEN . (isset($args[3]) ? " (" . implode(" ", array_slice($args, 3)) . ")" : ""), "INCOMING", $this->getServer());
 					$log = false;
 					break;
 
 				case "QUIT":
 					if(isset($args[2]))
-						if($args[2]{0} == ":") $args[3] = substr($args[2], 1);
+						if($args[2]{0} == ":") $args[2] = substr($args[2], 1);
 
-					$this->getLogger()->log(Terminal::$COLOR_DARK_AQUA . "\"" . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . "\" has quit" . Terminal::$COLOR_GREEN . (isset($args[3]) ? " " . implode(" ", array_slice($args, 2)) : ""), "INCOMING", $this->getServer());
+					$this->getLogger()->log(Terminal::$COLOR_DARK_AQUA . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . " has quit" . Terminal::$COLOR_GREEN . (isset($args[2]) ? " (" . implode(" ", array_slice($args, 2)) . ")" : ""), "INCOMING", $this->getServer());
 					$log = false;
 					break;
 
+				case "MODE":
+					$this->getLogger()->log(Terminal::$COLOR_RED . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . " sets mode: " . Terminal::$COLOR_YELLOW . $args[3] . Terminal::$COLOR_AQUA . (isset($args[4]) ? " on " . Terminal::$COLOR_BLUE . $args[4] . Terminal::$COLOR_AQUA : "") . " in " . Terminal::$COLOR_PURPLE . $args[2], "INCOMING", $this->getServer());
+					$log = false;
+					break;
+
+				case "NICK":
+					$this->getLogger()->log(Terminal::$COLOR_RED . $this->getUser($args[0]) . Terminal::$COLOR_AQUA . " is now known as ". Terminal::$COLOR_GREEN . substr($args[2], 1), "INCOMING", $this->getServer());
+					break;
+
+				case "001":
+				case "002":
+				case "003":
+				case "251":
+				case "252":
+				case "253":
+				case "254":
+				case "255":
+				case "256":
+				case "250":
+				case "265":
+				case "266":
+					$this->getLogger()->log(Terminal::$COLOR_DARK_AQUA . "--" . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . "-- " . trim(implode(" ", array_slice($args, 3)), ":"), "INCOMING", $this->getServer());
+					$log = false;
+					break;
+				case "004":
+				case "005":
+				case "372":
+				case "376":
+				case "375":
+				case "366":
+					$log = false;
+					break;
+
+				case "332":
+					$this->getLogger()->log(Terminal::$COLOR_DARK_AQUA . "Topic for " . Terminal::$COLOR_PURPLE . $args[3] . Terminal::$COLOR_DARK_AQUA . ": \"" . Terminal::$COLOR_YELLOW . substr(implode(" ", array_slice($args, 4)), 1) . Terminal::$COLOR_DARK_AQUA . "\"", "INCOMING", $this->getServer());
+					$log = false;
+					break;
+
+				case "333":
+					$this->getLogger()->log(Terminal::$COLOR_DARK_AQUA . "Topic for " . Terminal::$COLOR_PURPLE . $args[3] . Terminal::$COLOR_DARK_AQUA . " was set by " . Terminal::$COLOR_GREEN . $args[4] . Terminal::$COLOR_AQUA . " on " . date("l jS F \@ g:i A", intval($args[5])), "INCOMING", $this->getServer());
+					$log = false;
+					break;
+
+				case "328":
+					$this->getLogger()->log(Terminal::$COLOR_RED . $args[3] . Terminal::$COLOR_DARK_AQUA . " URL: " . Terminal::$COLOR_YELLOW . substr($args[4], 1), "INCOMING", $this->getServer());
+					$log = false;
+					break;
+
+				case "396":
+					$this->getLogger()->log(Terminal::$COLOR_DARK_AQUA . trim(implode(" ", array_slice($args, 3)), ":"), "INCOMING", $this->getServer());
+					$log = false;
+					break;
+
+				case "353":
+					$this->getLogger()->log(Terminal::$COLOR_DARK_AQUA . "Users on " . Terminal::$COLOR_PURPLE . $args[4] . Terminal::$COLOR_DARK_AQUA . " are: " . Terminal::$COLOR_YELLOW . substr(implode(" | ", array_slice($args, 5)), 1), "INCOMING", $this->getServer());
+					$log = false;
+					break;
 				default:
 					break;
 				}

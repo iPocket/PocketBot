@@ -11,6 +11,10 @@ define("START_TIME", microtime(true));
 if(php_sapi_name() !== "cli"){
 	throw new \Exception("You must run PocketBot on CLI");
 }
+
+if(!extension_loaded("pthreads")){
+	throw new \Exception("You must have the pthreads extension.");
+}
 $errors = 0;
 
 \Utils\Terminal::init($argv);
