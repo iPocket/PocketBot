@@ -9,7 +9,7 @@ class Test extends \Plugin\PluginBase {
 	public function onEnable(){
 		$this->getBot()->getLogger()->log("Test Plugin has been enabled!", "INFO", "Main");
 		$this->addCommand(new TestCommand());
-		//$this->addListener(new TestListener());
+		$this->addListener(new TestListener());
 	}
 }
 
