@@ -26,6 +26,7 @@ class Bot {
 	private $channels = [];
 	private $levels = [];
 	private $ssl = false;
+	private $counter = 0;
 
 
 	public function __construct($name, $settings, Logger $logger){
@@ -61,7 +62,6 @@ class Bot {
 
 	public function setNick($nick){
 		$this->nick = (string) $nick;
-		$this->connection->sendData("NICK $nick");
 	}
 
 	public function getName(){
@@ -99,6 +99,7 @@ class Bot {
 
 	public function addPlugin(Plugin\Plugin $p){
 		$p->setBot($this);
+		$this->getLogger()->log("Loading plugin {$p->getName()} v{$p->getVersion()} by {$p->getAuthor()}...", "INFO", "Main");
 		$p->onEnable();
 		$this->plugins[$p->getName()] = $p;
 	}
@@ -200,7 +201,7 @@ class Bot {
 
 	public function getUser($data){
 		$dat = explode("!", $data);
-		return trim($dat[0], ":");
+		return isset($dat[0]) ? trim($dat[0], ":") : $data;
 	}
 
 	public function evaluate($p){
@@ -306,6 +307,7 @@ class Bot {
 
 				case "NICK":
 					$this->getLogger()->log(Terminal::$COLOR_RED . $this->getUser($args[0]) . Terminal::$COLOR_AQUA . " is now known as ". Terminal::$COLOR_GREEN . substr($args[2], 1), "INCOMING", $this->getServer());
+					$log = false;
 					break;
 
 				case "001":
@@ -320,6 +322,8 @@ class Bot {
 				case "250":
 				case "265":
 				case "266":
+				case "481":
+				case "461":
 					$this->getLogger()->log(Terminal::$COLOR_DARK_AQUA . "--" . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . "-- " . trim(implode(" ", array_slice($args, 3)), ":"), "INCOMING", $this->getServer());
 					$log = false;
 					break;
@@ -338,7 +342,7 @@ class Bot {
 					break;
 
 				case "333":
-					$this->getLogger()->log(Terminal::$COLOR_DARK_AQUA . "Topic for " . Terminal::$COLOR_PURPLE . $args[3] . Terminal::$COLOR_DARK_AQUA . " was set by " . Terminal::$COLOR_GREEN . $args[4] . Terminal::$COLOR_AQUA . " on " . date("l jS F \@ g:i A", intval($args[5])), "INCOMING", $this->getServer());
+					$this->getLogger()->log(Terminal::$COLOR_DARK_AQUA . "Topic for " . Terminal::$COLOR_PURPLE . $args[3] . Terminal::$COLOR_DARK_AQUA . " was set by " . Terminal::$COLOR_GREEN . $this->getUser($args[4]) . Terminal::$COLOR_DARK_AQUA . " on " . Terminal::$COLOR_AQUA . date("l jS F \@ g:i A", intval($args[5])), "INCOMING", $this->getServer());
 					$log = false;
 					break;
 
@@ -354,6 +358,13 @@ class Bot {
 
 				case "353":
 					$this->getLogger()->log(Terminal::$COLOR_DARK_AQUA . "Users on " . Terminal::$COLOR_PURPLE . $args[4] . Terminal::$COLOR_DARK_AQUA . " are: " . Terminal::$COLOR_YELLOW . substr(implode(" | ", array_slice($args, 5)), 1), "INCOMING", $this->getServer());
+					$log = false;
+					break;
+
+				case "433":
+					$this->counter += 1;
+					$this->getLogger()->log(Terminal::$COLOR_DARK_AQUA . "Nickname {$this->getNick()} already in use, trying with {$this->getNick()}{$this->counter}...", "INCOMING", $this->getServer());
+					$this->setNick($this->getNick() . $this->counter);
 					$log = false;
 					break;
 				default:

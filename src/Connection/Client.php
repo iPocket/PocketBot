@@ -1,10 +1,12 @@
 <?php
 namespace Connection;
 
+use Utils\Terminal;
+
 class Client extends \Threaded {
 
 	private $socket;
-	private $bot;
+	public $bot;
 
 	public function __construct($bot){
 		$this->bot = $bot;
@@ -47,17 +49,88 @@ class Client extends \Threaded {
 		return trim($output, "\r\n");
 	}
 
-	public function sendData($data, $log = true){
-		if($log == true){
-			$this->bot->getLogger()->log($data, "OUTGOING", $this->bot->getServer());
-		} elseif($log == null){
-
-		} else {
-			$this->bot->getLogger()->log($log, "OUTGOING", $this->bot->getServer());
+	public function sendData($data){
+		$args = explode(" ", $data);
+		$args2 = $args;
+		
+		foreach($args2 as $n => $arg){
+			$args[$n + 1] = $arg;
 		}
+		$args[0] = $this->bot->getNick();
 
+		if(isset($args[1])){
+			switch(strtoupper($args[1])){
+				case "PRIVMSG":
+					$source = $args[2];
+					if($args[3]{0} == ":") $args[3] = substr($args[3], 1);
+					$msg = array_slice($args, 3);
+					if ($source == $this->bot->getNick()) $source = $this->getUser($data);
+
+					if(preg_match("\01ACTION(.*)\01", $data, $matches) == false){
+						$this->bot->getLogger()->log(Terminal::$COLOR_PURPLE . Terminal::$FORMAT_BOLD . "[$args[2]] " . Terminal::$FORMAT_RESET . Terminal::$COLOR_DARK_AQUA . "<" . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . "> " . implode(" ", array_slice($args, 3)), "OUTGOING", $this->bot->getServer());
+					} else {
+						$this->bot->getLogger()->log(Terminal::$COLOR_PURPLE . Terminal::$FORMAT_BOLD . "[$args[2]] " . Terminal::$FORMAT_RESET . Terminal::$COLOR_DARK_AQUA . "*" . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . " " . $matches[1], "OUTGOING", $this->bot->getServer());
+					}
+					$log = false;
+					break;
+
+				case "NOTICE":
+					if($args[3]{0} == ":") $args[3] = substr($args[3], 1);
+					$this->bot->getLogger()->log(Terminal::$COLOR_DARK_AQUA . "--" . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . "--" . Terminal::$COLOR_PURPLE . " [$args[2]] " . Terminal::$COLOR_DARK_AQUA . implode(" ", array_slice($args, 3)), "OUTGOING", $this->bot->getServer());
+					$log = false;
+					break;
+
+				case "JOIN":
+					if(isset($args[3]))
+						if($args[3]{0} == ":") $args[3] = substr($args[3], 1);
+
+					$this->bot->getLogger()->log(Terminal::$COLOR_DARK_AQUA . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . " has joined " . Terminal::$COLOR_PURPLE . $args[2] . Terminal::$COLOR_WHITE, "OUTGOING", $this->bot->getServer());
+					$log = false;
+					break;
+
+				case "PART":
+					if(isset($args[3]))
+						if($args[3]{0} == ":") $args[3] = substr($args[3], 1);
+
+					$this->bot->getLogger()->log(Terminal::$COLOR_DARK_AQUA . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . " has left " . Terminal::$COLOR_PURPLE . $args[2] . Terminal::$COLOR_GREEN . (isset($args[3]) ? " (" . implode(" ", array_slice($args, 3)) . ")" : ""), "OUTGOING", $this->bot->getServer());
+					$log = false;
+					break;
+
+				case "QUIT":
+					if(isset($args[2]))
+						if($args[2]{0} == ":") $args[2] = substr($args[2], 1);
+
+					$this->bot->getLogger()->log(Terminal::$COLOR_DARK_AQUA . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . " has quit" . Terminal::$COLOR_GREEN . (isset($args[2]) ? " (" . implode(" ", array_slice($args, 2)) . ")" : ""), "OUTGOING", $this->bot->getServer());
+					$log = false;
+					break;
+
+				case "MODE":
+					$this->bot->getLogger()->log(Terminal::$COLOR_RED . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . " sets mode: " . Terminal::$COLOR_YELLOW . $args[3] . Terminal::$COLOR_AQUA . (isset($args[4]) ? " on " . Terminal::$COLOR_BLUE . $args[4] . Terminal::$COLOR_AQUA : "") . " in " . Terminal::$COLOR_PURPLE . $args[2], "OUTGOING", $this->bot->getServer());
+					$log = false;
+					break;
+
+				case "NICK":
+					$this->bot->getLogger()->log(Terminal::$COLOR_RED . "You" . Terminal::$COLOR_AQUA . " are now known as ". Terminal::$COLOR_GREEN . $args[2], "OUTGOING", $this->bot->getServer());
+					$this->bot->setNick($args[2]);
+					$log = false;
+					break;
+
+				case "USER":
+				case "PASS":
+				case "PONG":
+					$log = false;
+					break;
+				default:
+					break;
+				}
+			}
+		if(!isset($log)) $this->bot->getLogger()->log($data, "OUTGOING", $this->bot->getServer());
 		fwrite($this->socket, $data . "\r\n");
 		//$this->bot->upload += strlen($data);
 		return;
+	}
+
+	private function getUser($p){
+		return $this->bot->getUser($p);
 	}
 }

@@ -1,5 +1,6 @@
 <?php
 
+//ini_set("error_reporting", 1);
 ini_set("memory_limit", -1);
 ini_set("allow_url_fopen", 1);
 ini_set("default_charset", "utf-8");
@@ -15,6 +16,7 @@ if(php_sapi_name() !== "cli"){
 if(!extension_loaded("pthreads")){
 	throw new \Exception("You must have the pthreads extension.");
 }
+
 $errors = 0;
 
 \Utils\Terminal::init($argv);
@@ -53,7 +55,7 @@ if(!isset($argv[1])){
 	throw new \Exception("Config file not provided.");
 }
 
-if(($config = json_decode(file_get_contents(ROOT_DIR . "/config/$argv[1].json"), true)) == NULL){
+if(($config = json_decode(file_get_contents(ROOT_DIR . "/config/$argv[1].json"), true)) == null){
 	throw new \Exception("Config file does not exist or has invalid syntax, make sure you did not include the file extension.");
 }
 

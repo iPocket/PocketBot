@@ -3,22 +3,29 @@ namespace Plugin;
 
 abstract class PluginBase implements Plugin {
 
-	private $name;
-	private $version;
+	protected $name;
+	protected $author = "Unknown";
+	protected $version;
 	private $bot = null;
 
 	public function onEnable(){
+		return;
 	}
 
 	public function onDisable(){
+		return;
 	}
 
 	public function getName(){
 		return $this->name;
 	}
 
+	public function getAuthor(){
+		return $this->author;
+	}
+
 	public function getVersion(){
-		return $this->verison;
+		return $this->version;
 	}
 
 	public function setBot(\Bot $bot){
@@ -27,6 +34,10 @@ abstract class PluginBase implements Plugin {
 
 	public function getBot(){
 		return $this->bot;
+	}
+
+	public function log($msg){
+		$this->getBot()->getLogger()->log($msg, $this->getName(), "Plugins");
 	}
 
 	protected function addCommand(\Command\Command $c){

@@ -2,7 +2,7 @@
 
 class Manager {
 
-	public static $servers = [];
+	public static $bots = [];
 	public static $config = [];
 
 	public function __construct(array $config){
@@ -12,7 +12,7 @@ class Manager {
 	public function init($logger){
 		foreach(self::$config as $server => $settings){
 			$bot = new Bot($server, $settings, $logger);
-			self::$servers[$server] = $bot;
+			self::$bots[$server] = $bot;
 			$bot->init();
 		}
 	}

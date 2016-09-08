@@ -3,11 +3,12 @@ namespace plugins;
 
 class Test extends \Plugin\PluginBase {
 
-	private $name = "Test Plugin";
-	private $version = 1.0;
+	protected $name = "Test Plugin";
+	protected $author = "PocketKiller";
+	protected $version = 1.0;
 
 	public function onEnable(){
-		$this->getBot()->getLogger()->log("Test Plugin has been enabled!", "INFO", "Main");
+		$this->log("I've been loaded!");
 		$this->addCommand(new TestCommand());
 		$this->addListener(new TestListener());
 	}
