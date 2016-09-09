@@ -1,6 +1,7 @@
 <?php
 
 use Utils\Terminal;
+use Utils\IRCFormat;
 
 class Logger extends \Thread {
 
@@ -55,6 +56,29 @@ class Logger extends \Thread {
 		$msg = str_replace(Terminal::$COLOR_LIGHT_PURPLE, "", $msg);
 		$msg = str_replace(Terminal::$COLOR_YELLOW, "", $msg);
 		$msg = str_replace(Terminal::$COLOR_WHITE, "", $msg);
+
+		$msg = str_replace(IRCFormat::$FORMAT_UNDERLINE, "", $msg);
+		$msg = str_replace(IRCFormat::$FORMAT_BOLD, "", $msg);
+		$msg = str_replace(IRCFormat::$FORMAT_REVERSE, "", $msg);
+
+		$msg = str_replace(IRCFormat::$FORMAT_RESET, "", $msg);
+
+		$msg = str_replace(IRCFormat::$COLOR_WHITE, "", $msg);
+		$msg = str_replace(IRCFormat::$COLOR_BLACK, "", $msg);
+		$msg = str_replace(IRCFormat::$COLOR_BLUE, "", $msg);
+		$msg = str_replace(IRCFormat::$COLOR_GREEN, "", $msg);
+		$msg = str_replace(IRCFormat::$COLOR_RED, "", $msg);
+		$msg = str_replace(IRCFormat::$COLOR_BROWN, "", $msg);
+		$msg = str_replace(IRCFormat::$COLOR_PURPLE, "", $msg);
+		$msg = str_replace(IRCFormat::$COLOR_ORANGE, "", $msg);
+		$msg = str_replace(IRCFormat::$COLOR_YELLOW, "", $msg);
+		$msg = str_replace(IRCFormat::$COLOR_LIGHT_GREEN, "", $msg);
+		$msg = str_replace(IRCFormat::$COLOR_DARK_AQUA, "", $msg);
+		$msg = str_replace(IRCFormat::$COLOR_AQUA, "", $msg);
+		$msg = str_replace(IRCFormat::$COLOR_LIGHT_BLUE, "", $msg);
+		$msg = str_replace(IRCFormat::$COLOR_PINK, "", $msg);
+		$msg = str_replace(IRCFormat::$COLOR_GRAY, "", $msg);
+		$msg = str_replace(IRCFormat::$COLOR_LIGHT_GRAY, "", $msg);
 
 		return $msg;
 	}

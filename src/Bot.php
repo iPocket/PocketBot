@@ -52,6 +52,7 @@ class Bot {
 			if($p instanceof \Plugin\Plugin)
 			$this->addPlugin($p);
 		}
+		$this->addPlugin(new \Plugin\CorePlugin());
 		$this->getConnection()->connect();
 		$this->main();
 	}
@@ -99,7 +100,7 @@ class Bot {
 
 	public function addPlugin(Plugin\Plugin $p){
 		$p->setBot($this);
-		$this->getLogger()->log("Loading plugin {$p->getName()} v{$p->getVersion()} by {$p->getAuthor()}...", "INFO", "Main");
+		$this->getLogger()->log("Loading plugin " . Terminal::$COLOR_GREEN . $p->getName() . Terminal::$COLOR_WHITE . " v" . Terminal::$COLOR_YELLOW . $p->getVersion() . Terminal::$COLOR_WHITE . " by " . Terminal::$COLOR_RED . $p->getAuthor() . Terminal::$COLOR_WHITE . "...", "INFO", "Main");
 		$p->onEnable();
 		$this->plugins[$p->getName()] = $p;
 	}
@@ -260,11 +261,9 @@ class Bot {
 					if(stripos($msg[0], $this->getPrefix()) === 0){
 						$command = ucfirst(strtolower(substr($msg[0], strlen($this->getPrefix()))));
 						if($this->getCommand($command) !== null){
-							$this->executeCommand($data, array_slice($args, 4), $source, $command);
-							break;
+							$this->executeCommand($data, array_slice($msg, 1), $source, $command);
 						} else {
-							$this->getConnection()->sendData("PRIVMSG $source :Unknown command");
-							break;
+							$this->getConnection()->sendData("PRIVMSG $source :{$this->getUser($args[0])}: Unknown command");
 						}
 					}
 					$log = false;

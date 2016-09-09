@@ -13,6 +13,7 @@ abstract class Command {
 	protected $amount = 0;
 	protected $help = '';
 	protected $usage = '';
+	protected $secret = false;
 
 	public function execute($data, $args, $source){
 
@@ -21,18 +22,18 @@ abstract class Command {
 		$this->args = (array) $args;
 
 		if($this->getPerm() < $this->getLevel()){
-			$this->say(ERROR . "Permission denied, you need at least access level {$this->getLevel()} (" . $this->format($this->getLevel()) . ")!");
+			$this->say($this->getNick() . ": Permission denied, you need at least access level {$this->getLevel()} (" . $this->format($this->getLevel()) . ")!");
 			return;
 		}
 
 		if(!is_array($this->getAmount())){
 			if($this->getAmount() !== -1 && count($this->getArgs()) < $this->getAmount()){
-				$this->say(ERROR . "You need to specify at least {$this->getAmount()} arguments.");
+				$this->say($this->getNick() . ": You need to specify at least {$this->getAmount()} arguments.");
 				return;
 			}
 		} else {
 			if(!in_array(count($this->getArgs()), $this->getAmount()) && !in_array(-1, $this->getAmount())){
-				$this->say(ERROR . "You need to specify " . implode(" or ", $this->getAmount()) . " arguments.");
+				$this->say($this->getNick() . ": You need to specify " . implode(" or ", $this->getAmount()) . " arguments.");
 				return;
 			}
 		}
@@ -54,8 +55,16 @@ abstract class Command {
 		$this->getBot()->getConnection()->sendData('PRIVMSG ' . $this->getSource() . ' :' . $msg);
 	}
 
-	protected function getHelp(){
-		if (!empty($this->help)) return array($this->help, $this->usage);
+	protected function notice($msg){
+        $this->getBot()->getConnection()->sendData('NOTICE ' . $this->getNick() . ' :' . $msg);
+    }
+
+	public function getUsage(){
+		return $this->usage;
+	}
+
+	public function getHelp(){
+		return $this->help;
 	}
 
 	public function exec(){
@@ -98,6 +107,10 @@ abstract class Command {
 
 	public function getName(){
 		return (string) $this->name;
+	}
+
+	public function isSecret(){
+		return (bool) $this->secret;
 	}
 
 	public function getPlugin(){

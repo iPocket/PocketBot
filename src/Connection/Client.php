@@ -125,7 +125,8 @@ class Client extends \Threaded {
 				}
 			}
 		if(!isset($log)) $this->bot->getLogger()->log($data, "OUTGOING", $this->bot->getServer());
-		fwrite($this->socket, $data . "\r\n");
+		foreach(str_split($data, 510) as $data)
+			fwrite($this->socket, $data . "\r\n");
 		//$this->bot->upload += strlen($data);
 		return;
 	}
