@@ -305,7 +305,12 @@ class Bot {
 					break;
 
 				case "NICK":
-					$this->getLogger()->log(Terminal::$COLOR_RED . $this->getUser($args[0]) . Terminal::$COLOR_AQUA . " is now known as ". Terminal::$COLOR_GREEN . substr($args[2], 1), "INCOMING", $this->getServer());
+					$this->getLogger()->log(Terminal::$COLOR_RED . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . " is now known as ". Terminal::$COLOR_GREEN . substr($args[2], 1), "INCOMING", $this->getServer());
+					$log = false;
+					break;
+
+				case "KICK":
+					$this->getLogger()->log(Terminal::$COLOR_PURPLE . "[" . $args[2] . "] " . Terminal::$COLOR_RED . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . " has kicked ". Terminal::$COLOR_GREEN . $args[3] . (isset($args[4]) ? Terminal::$COLOR_DARK_AQUA . " (" . Terminal::$COLOR_AQUA . substr(implode(" ", array_slice($args, 4)), 1) . Terminal::$COLOR_DARK_AQUA . ")" : ''), "INCOMING", $this->getServer());
 					$log = false;
 					break;
 
