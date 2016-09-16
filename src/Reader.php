@@ -11,13 +11,13 @@ class Reader extends \Worker {
 	}
 
 	public function run(){
-		//do {
+		do {
 			$handle = fopen("php://stdin", 'r');
 			$data = trim(fgets($handle), "\r\n");
 			$args = explode(" ", $data);
 
 			if(empty($data)){
-				//continue;
+				continue;
 			}
 
 			if($args[0] === "/switch"){
@@ -27,7 +27,6 @@ class Reader extends \Worker {
 			} elseif($this->switch !== "~"){
 				$this->bot->getConnection()->sendData("PRIVMSG $this->switch :$data");
 			}
-			$this->run();
-		//} while(true);
+		} while(true);
 	}
 }
