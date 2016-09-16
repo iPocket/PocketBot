@@ -4,11 +4,11 @@
 		"ssl":false,
 		"port":6667,
 		"nick":"PocketBot-dev",
-		"name":"PocketBot-dev",
+		"name":"PocketBot - Development",
 		"password":"",
 		"channels":["#botters-test", "#pocketbot"],
 		"prefix":"=:",
-		"levels":{
+		"perms":{
 			"PocketKiller!PocketKill@unaffiliated/pocketkiller":4
 		}
 	}

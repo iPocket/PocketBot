@@ -49,8 +49,7 @@ abstract class Listener {
 	}
 
 	public function exec(){
-		flush();
-        throw new \Exception( 'You have to overwrite the "exec" method and the "execute". Call the parent "execute" and execute your custom "exec".' );
+        trigger_error('You have to overwrite the "exec" method and the "execute". Call the parent "execute" and execute your custom "exec".');
 	}
 
 	protected function getNick($host){

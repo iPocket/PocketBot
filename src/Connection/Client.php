@@ -69,7 +69,7 @@ class Client extends \Threaded {
 					if(preg_match("\01ACTION(.*)\01", $data, $matches) == false){
 						$this->bot->getLogger()->log(Terminal::$COLOR_PURPLE . Terminal::$FORMAT_BOLD . "[$args[2]] " . Terminal::$FORMAT_RESET . Terminal::$COLOR_DARK_AQUA . "<" . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . "> " . implode(" ", array_slice($args, 3)), "OUTGOING", $this->bot->getServer());
 					} else {
-						$this->bot->getLogger()->log(Terminal::$COLOR_PURPLE . Terminal::$FORMAT_BOLD . "[$args[2]] " . Terminal::$FORMAT_RESET . Terminal::$COLOR_DARK_AQUA . "*" . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . " " . $matches[1], "OUTGOING", $this->bot->getServer());
+						$this->bot->getLogger()->log(Terminal::$COLOR_PURPLE . Terminal::$FORMAT_BOLD . "[$args[2]] " . Terminal::$FORMAT_RESET . Terminal::$COLOR_DARK_AQUA . "*" . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . $matches[1], "OUTGOING", $this->bot->getServer());
 					}
 					$log = false;
 					break;
@@ -111,7 +111,16 @@ class Client extends \Threaded {
 
 				case "NICK":
 					$this->bot->getLogger()->log(Terminal::$COLOR_RED . "You" . Terminal::$COLOR_AQUA . " are now known as ". Terminal::$COLOR_GREEN . $args[2], "OUTGOING", $this->bot->getServer());
-					$this->bot->setNick($args[2]);
+					$log = false;
+					break;
+
+				case "KICK":
+					$this->bot->getLogger()->log(Terminal::$COLOR_PURPLE . "[" . $args[2] . "] " . Terminal::$COLOR_RED . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . " has kicked ". Terminal::$COLOR_GREEN . $args[3] . (isset($args[4]) ? Terminal::$COLOR_DARK_AQUA . " (" . Terminal::$COLOR_AQUA . substr(implode(" ", array_slice($args, 4)), 1) . Terminal::$COLOR_DARK_AQUA . ")" : ''), "INCOMING", $this->getServer());
+					$log = false;
+					break;
+
+				case "TOPIC":
+					$this->bot->getLogger()->log(Terminal::$COLOR_PURPLE . "[" . $args[2] . "] " . Terminal::$COLOR_RED . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . " has changed topic to " . Terminal::$COLOR_DARK_AQUA . "\"" . Terminal::$COLOR_AQUA . substr(implode(" ", array_slice($args, 3)), 1) . Terminal::$COLOR_DARK_AQUA . "\"", "INCOMING", $this->getServer());
 					$log = false;
 					break;
 
@@ -125,8 +134,7 @@ class Client extends \Threaded {
 				}
 			}
 		if(!isset($log)) $this->bot->getLogger()->log($data, "OUTGOING", $this->bot->getServer());
-		foreach(str_split($data, 510) as $data)
-			fwrite($this->socket, $data . "\r\n");
+		fwrite($this->socket, $data . "\r\n");
 		//$this->bot->upload += strlen($data);
 		return;
 	}

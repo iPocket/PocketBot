@@ -5,23 +5,35 @@ ini_set("memory_limit", -1);
 ini_set("allow_url_fopen", 1);
 ini_set("default_charset", "utf-8");
 
-define("ERROR", "\0034\02Error:\017 ");
 define("ROOT_DIR", \getcwd());
 define("START_TIME", microtime(true));
 
+define("VERSION", "Development");
+define("NAME", "PocketBot-dev");
+
+
+function dies(){
+	while(true){
+
+	}
+}
+
 if(php_sapi_name() !== "cli"){
-	throw new \Exception("You must run PocketBot on CLI");
+	trigger_error("You must run " . NAME . " on CLI");
+	dies();
 }
 
 if(!extension_loaded("pthreads")){
-	throw new \Exception("You must have the pthreads extension.");
+	trigger_error("You must have the pthreads extension.");
+	dies();
 }
 
 $errors = 0;
 
-\Utils\Terminal::init($argv);
+\Utils\Terminal::init();
 
 $logger = new Logger();
+$logger->log("Starting " . NAME . " v" . VERSION . "...", "INFO", "Main");
 
 set_time_limit(0);
 set_error_handler(function ($errno, $errstr, $errfile, $errline) use ($logger){
@@ -47,20 +59,27 @@ set_error_handler(function ($errno, $errstr, $errfile, $errline) use ($logger){
 				break;
 		}
 		$errors++;
-		$logger->log("$errstr in $errfile at line $errline", $errno, \Utils\Terminal::$COLOR_RED . "ERROR" . \Utils\Terminal::$COLOR_GOLD);
+		$logger->log("$errstr in $errfile at line $errline", $errno, \Utils\Terminal::$COLOR_RED . "Error" . \Utils\Terminal::$COLOR_GOLD);
 	});
-cli_set_process_title("PocketBot");
+cli_set_process_title(NAME);
+
+$logger->log("Loading Bot config file...", "INFO", "Main");
 
 if(!isset($argv[1])){
-	throw new \Exception("Config file not provided.");
+	trigger_error("Config file not provided.");
+	dies();
 }
 
+$argv[1] = substr($argv[1], 1);
+
 if(($config = json_decode(file_get_contents(ROOT_DIR . "/config/$argv[1].json"), true)) == null){
-	throw new \Exception("Config file does not exist or has invalid syntax, make sure you did not include the file extension.");
+	trigger_error("Config file does not exist or has invalid syntax, make sure you did not include the file extension.");
+	dies();
 }
 
 if(count($config) == 0){
-	throw new \Exception("Config file is empty, no servers included.");
+	trigger_error("Config file is empty, no servers included.");
+	dies();
 }
 
 $manager = new Manager($config);

@@ -44,19 +44,27 @@ abstract class Command {
 
         $hosts = explode(" ", $this->getData())[0];
 
-        if($this->getBot()->hasLevel($hosts)){
-        	return $this->getBot()->getLevels()[$hosts];
+        if($this->getBot()->hasPerm($hosts)){
+        	return $this->getBot()->getPerm($hosts);
+        } elseif($hosts == "Console"){
+        	return 4;
         } else {
         	return 0;
         }
 	}
 
 	protected function say($msg){
-		$this->getBot()->getConnection()->sendData('PRIVMSG ' . $this->getSource() . ' :' . $msg);
+		if($this->getSource() !== "Console")
+			$this->getBot()->getConnection()->sendData('PRIVMSG ' . $this->getSource() . ' :' . $msg);
+		else
+			$this->getBot()->getLogger()->log($msg, "INFO", "CommandReader");
 	}
 
 	protected function notice($msg){
-        $this->getBot()->getConnection()->sendData('NOTICE ' . $this->getNick() . ' :' . $msg);
+       	if($this->getSource() !== "Console")
+			$this->getBot()->getConnection()->sendData('NOTICE ' . $this->getNick() . ' :' . $msg);
+		else
+			$this->getBot()->getLogger()->log($msg, "INFO", "CommandReader");
     }
 
 	public function getUsage(){

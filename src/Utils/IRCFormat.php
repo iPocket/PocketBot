@@ -5,6 +5,7 @@ abstract class IRCFormat {
 
 	public static $FORMAT_UNDERLINE = "\037";
 	public static $FORMAT_BOLD = "\02";
+	public static $FORMAT_ITALIC = "\035";
 	public static $FORMAT_REVERSE = "\026";
 
 	public static $FORMAT_ACTION = "\01";
