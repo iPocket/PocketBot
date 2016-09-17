@@ -20,12 +20,24 @@ abstract class PluginBase implements Plugin {
 		return $this->name;
 	}
 
+	public function setName($name){
+		$this->name = $name;
+	}
+
 	public function getAuthor(){
 		return $this->author;
 	}
 
+	public function setAuthor($author){
+		$this->author = $author;
+	}
+
 	public function getVersion(){
 		return $this->version;
+	}
+
+	public function setVersion($version){
+		$this->version = $version;
 	}
 
 	public function setBot(\Bot $bot){

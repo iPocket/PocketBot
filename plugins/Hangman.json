@@ -1,0 +1,6 @@
+{
+	"name":"Hangman",
+	"version":"1.0.0",
+	"author":"PocketKiller",
+	"main":"Hangman\\HangmanPlugin"
+}

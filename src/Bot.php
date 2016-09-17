@@ -50,13 +50,20 @@ class Bot {
 	public function init(){
 		$this->joined = false;
 		$this->getLogger()->log("Loading plugins...", "Info", "Main");
-		foreach(glob(ROOT_DIR . DIRECTORY_SEPARATOR . "plugins" . DIRECTORY_SEPARATOR . "*.php") as $p){
-			$plugin = "plugins\\" . basename($p, ".php");
-			$p = new $plugin();
-			if($p instanceof \Plugin\Plugin)
-				$this->addPlugin($p);
+		foreach(glob(ROOT_DIR . DIRECTORY_SEPARATOR . "plugins" . DIRECTORY_SEPARATOR . "*.json") as $file){
+			$p = json_decode(file_get_contents($file), true);
+
+			$this->addPlugin($p);
+			/*try{
+				$p = new $plugin();
+				if($p instanceof \Plugin\Plugin){
+					$this->addPlugin($p);
+				}
+			} catch(\ParseError $p){
+				trigger_error($p->getMessage());
+			}*/
 		}
-		$this->addPlugin(new \Plugin\CorePlugin());
+		$this->addPlugin(array("name" => "Core", "version" => "1.0.0", "author" => "System", "main" => "Plugin\\CorePlugin"));
 		$this->getConnection()->connect();
 		$this->main();
 	}
@@ -103,15 +110,48 @@ class Bot {
 		return isset($this->plugins[$p]) ? $this->plugins[$p] : null;
 	}
 
-	public function addPlugin(Plugin\Plugin $p){
-		$p->setBot($this);
-		$this->getLogger()->log("Loading plugin " . Terminal::$COLOR_GREEN . $p->getName() . Terminal::$COLOR_WHITE . " v" . Terminal::$COLOR_YELLOW . $p->getVersion() . Terminal::$COLOR_WHITE . " by " . Terminal::$COLOR_RED . $p->getAuthor() . Terminal::$COLOR_WHITE . "...", "Info", "Main");
-		$p->onEnable();
-		$this->plugins[$p->getName()] = $p;
+	public function addPlugin(array $json){
+
+		$this->getLogger()->log("Enabling plugin " . Terminal::$COLOR_GREEN . $json['name'] . Terminal::$COLOR_WHITE . " v" . Terminal::$COLOR_YELLOW . $json['version'] . Terminal::$COLOR_WHITE . " by " . Terminal::$COLOR_RED . $json['author'] . Terminal::$COLOR_WHITE . "...", "Info", "Main");
+
+		try {
+			$main = $json['main'];
+			$class = @new $main;
+
+			if($class instanceof \Plugin\Plugin){
+				$class->setName($json['name']);
+				$class->setAuthor($json['author']);
+				$class->setVersion($json['version']);
+				$class->setBot($this);
+				$class->onEnable();
+			} else {
+				//trigger_error();
+			}
+		} catch(\ParseError $e){
+			trigger_error($e->getMessage());
+			$this->getLogger()->log("Disabling plugin " . Terminal::$COLOR_GREEN . $json['name'] . Terminal::$COLOR_WHITE . " v" . Terminal::$COLOR_YELLOW . $json['version'] . Terminal::$COLOR_WHITE . " by " . Terminal::$COLOR_RED . $json['author'] . Terminal::$COLOR_WHITE . "...", "Info", "Main");
+			return false;
+		}
+
+		$this->plugins[$class->getName()] = $class;
 	}
 
 	public function removePlugin(Plugin\Plugin $p){
+		$this->getLogger()->log("Disabling plugin " . Terminal::$COLOR_GREEN . $p->getName() . Terminal::$COLOR_WHITE . " v" . Terminal::$COLOR_YELLOW . $p->getVersion() . Terminal::$COLOR_WHITE . " by " . Terminal::$COLOR_RED . $p->getAuthor() . Terminal::$COLOR_WHITE . "...", "Info", "Main");
+
 		$p->onDisable();
+		foreach($this->getCommands() as $name => $cmd){
+			if($cmd->getPlugin()->getName() == $p->getName()){
+				$this->removeCommand($cmd);
+			}
+		}
+
+		foreach($this->getListeners() as $name => $lis){
+			if($lis->getPlugin()->getName() == $p->getName()){
+				$this->removeListener($cmd);
+			}
+		}
+
 		unset($this->plugins[$p->getName()]);
 	}
 
