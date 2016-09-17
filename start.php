@@ -1,67 +1,21 @@
 <?php
 
-require 'Classes\Autoloader.php';
-
-gc_enable();
-ini_set("memory_limit", -1);
-ini_set("allow_url_fopen", 1);
-ini_set("default_charset", "utf-8");
-mb_internal_encoding("ASCII");
-define("ERROR", "\0034Error: ");
-define("SUCCESS", "\0033Done: ");
-define("RESULT", "\00312Result: ");
-define("ROOT_DIR", __DIR__);
-define("START_TIME", microtime(true));
-
-spl_autoload_register('Autoloader::load');
-
-set_time_limit(0);
-set_error_handler("customError");
-cli_set_process_title("PocketBot");
-$errors = 0;
-if(!isset($argv[1])){
-	throw new Exception("Config file not provided.");
-	exit(255);
-}
-
-function customError($errno, $errstr, $errfile, $errline){
-	global $errors;
-	/*if($errno == E_NOTICE) $errno = "NOTICE";
-	if($errno == E_USER_ERROR) $errno = "USER ERROR";
-	if($errno == E_WARNING) $errno = "WARNING";
-	if($errno == E_ERROR) $errno = "ERROR";
-	if(is_int($errno)) $errno = "UNKNOWN ERROR";*/
-	switch($errno){
-		case E_NOTICE:
-			$errno = "NOTICE";
-			break;
-		case E_USER_ERROR:
-			$errno = "USER ERROR";
-			break;
-		case E_WARNING:
-			$errno = "WARNING";
-			break;
-		case E_ERROR:
-			$errno = "ERROR";
-			break;
-		default:
-			$errno = "UNKNOWN ERROR";
-			break;
+spl_autoload_register(function ($class){
+	$one = __DIR__ . DIRECTORY_SEPARATOR . $class . ".php";
+	$two = __DIR__ . DIRECTORY_SEPARATOR . "src" . DIRECTORY_SEPARATOR . str_replace("\\", DIRECTORY_SEPARATOR, $class) . ".php";
+	$three = __DIR__ . DIRECTORY_SEPARATOR . "plugins" . DIRECTORY_SEPARATOR . str_replace("\\", DIRECTORY_SEPARATOR, $class) . ".php";
+	if(file_exists($one)){
+		require $one;
+	} elseif(file_exists($two)){
+		require $two;
+	}elseif(file_exists($three)){
+		require $three;
+	} else {
+		echo "File for class $class Not found, var dumping...";
+		var_dump($one);
+		var_dump($two);
+		var_dump($three);
 	}
-	$len = 0;
-	if(strlen($errno) < 14) $len = 14 - strlen($errno);
-	$errors++;
-	echo "\x1b[38;5;87m[" . date("h:m:s") . "]\x1b[m \x1b[38;5;227m[Main/\x1b[38;5;124m$errno\x1b[m\x1b[38;5;227m]\x1b[38;5;34m" . str_repeat(" ", $len) . " => \x1b[38;5;124m$errstr in $errfile at line $errline" . PHP_EOL;
-}
+});
 
-$config = json_decode(file_get_contents(__DIR__ . "/$argv[1].json"), true);
-$bot = new Library\Bot($config);
-foreach($config['commands'] as $cmd){
-	$reflector = new ReflectionClass($cmd);
-    $command = $reflector->newInstanceArgs(array());
-
-	$bot->addCommand($command);
-}
-$bot->connect();
-
-?>
+include "src/PocketBot.php";

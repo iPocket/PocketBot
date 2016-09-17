@@ -1,0 +1,15 @@
+{
+	"Server":{
+		"ip":"irc.freenode.net",
+		"ssl":false,
+		"port":6667,
+		"nick":"PocketBot-dev",
+		"name":"PocketBot - Development",
+		"password":"",
+		"channels":["#botters-test", "#pocketbot"],
+		"prefix":"=:",
+		"perms":{
+			"PocketKiller!PocketKill@unaffiliated/pocketkiller":4
+		}
+	}
+}
