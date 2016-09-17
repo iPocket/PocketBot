@@ -305,7 +305,7 @@ class PermsCommand extends \Command\Command {
 	protected $amount = array(1, 2, 3);
 	protected $help = "Lists all the permissions";
 	protected $usage = "Perms <add/remove/list/get/save> [host] [level]";
-	public $aliases = ['levels', 'permissions'];
+	public $aliases = ['Levels', 'Permissions'];
 	protected $secret = true;
 
 	public function exec(){
@@ -383,7 +383,7 @@ class PermsCommand extends \Command\Command {
 
 				$settings["perms"] = $perms;
 
-				file_put_contents(ROOT_DIR . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . CONFIG_NAME . ".json", json_encode($settings));
+				file_put_contents(ROOT_DIR . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . CONFIG_NAME . ".json", json_encode($settings, JSON_PRETTY_PRINT));
 
 				$this->say($this->getNick() . ": Saved perms successfully.");
 				break;

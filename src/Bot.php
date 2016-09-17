@@ -214,6 +214,32 @@ class Bot {
 		return $this->settings;
 	}
 
+	public function rainbow($msg){
+		$count = -1;
+		$rainbow = array(4, 7, 8, 9, 11, 12, 6);
+		$info = str_split($msg);
+		$info = str_replace("\003", "", $info);
+		$msg = [];
+		foreach($info as $m){
+			$c = $rainbow[$count + 1];
+			if($m !== " " && $m !== "\003" && $m !== "" && $m !== "\017" && $m !== "\02" && $m !== "\026" && $m !== "\01" && $m !== "\037"){
+				$msg[] = (string) "\003" . (strlen((string)$c) == 1 ? 0 . $c : $c) . "‌‌" . $m;
+				$count++;
+			} elseif($m == " ") {
+				$msg[] = " ";
+			} elseif($m == "\003"){
+				$msg[] = "";
+			} else {
+				$msg[] = "";
+			}
+			if($count == 6){
+				$count = -1;
+			}
+		}
+
+		return implode("", $msg);
+    }
+
 	public function getUser($data){
 		$dat = explode("!", $data);
 		return isset($dat[0]) ? trim($dat[0], ":") : $data;
