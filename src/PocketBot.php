@@ -1,6 +1,6 @@
 <?php
 
-//ini_set("error_reporting", 1);
+error_reporting(-1);
 ini_set("memory_limit", -1);
 ini_set("allow_url_fopen", 1);
 ini_set("default_charset", "utf-8");
@@ -81,6 +81,8 @@ if(count($config) == 0){
 	trigger_error("Config file is empty, no servers included.");
 	stop();
 }
+
+define("CONFIG_NAME", $argv[1]);
 
 $manager = new Manager($config);
 $manager->init($logger);

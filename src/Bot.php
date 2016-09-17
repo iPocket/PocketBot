@@ -210,6 +210,10 @@ class Bot {
 		return $this->ssl;
 	}
 
+	public function getSettings(){
+		return $this->settings;
+	}
+
 	public function getUser($data){
 		$dat = explode("!", $data);
 		return isset($dat[0]) ? trim($dat[0], ":") : $data;
@@ -400,7 +404,7 @@ class Bot {
 						break;
 					}
 				}
-				
+
 				if($args[0] == "PING"){
 					$this->getConnection()->sendData("PONG $args[1]", false);
 					$log = false;

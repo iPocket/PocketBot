@@ -23,6 +23,7 @@ class CorePlugin extends PluginBase {
 		$this->addCommand(new RestartCommand());
 		$this->addCommand(new TimeoutCommand());
 		$this->addCommand(new StatsCommand());
+		$this->addCommand(new PermsCommand());
 	}
 }
 
@@ -295,4 +296,101 @@ class StatsCommand extends \Command\Command {
         
     	return trim($result);
     }
+}
+
+class PermsCommand extends \Command\Command {
+
+	protected $name = "Perms";
+	protected $level = 4;
+	protected $amount = array(1, 2, 3);
+	protected $help = "Lists all the permissions";
+	protected $usage = "Perms <add/remove/list/get/save> [host] [level]";
+	public $aliases = ['levels', 'permissions'];
+	protected $secret = true;
+
+	public function exec(){
+		$args = $this->getArgs();
+
+		switch(strtolower($args[0])){
+
+			case "add":
+			case "new":
+			case "set":
+
+				if(count($args) < 3){
+					$this->say($this->getNick() . ": Please specify the user host and the permission level.");
+					return;
+				}
+
+				$this->getBot()->addPerm($args[1], intval($args[2]));
+				$this->say($this->getNick() . ": Permission for " . $this->getUser($args[1]) . " has been set to $args[2]" . " (" . $this->format(intval($args[2])) . ").");
+
+				break;
+
+			case "remove":
+			case "rm":
+			case "delete":
+
+				if(count($args) < 2){
+					$this->say($this->getNick() . ": Please specify the user host.");
+					return;
+				}
+
+				if($this->getBot()->getPerm($args[1]) !== null){
+					$this->getBot()->removePerm($args[1]);
+					$this->say($this->getNick() . ": Permission for " . $this->getUser($args[1]) . " has been set to 0 (User).");
+				} else {
+					$this->say($this->getNick() . ": Permission does not exist.");
+				}
+
+				break;
+
+			case "list":
+			case "all":
+
+				$perms = $this->getBot()->getPerms();
+
+				$msg = [];
+				foreach($perms as $host => $perm){
+					$msg[] = $this->getUser($host) . " ($host) => " . $perm . " (" . $this->format($perm) . ")";
+				}
+
+
+				$this->say($this->getNick() . ": " . implode(" | ", $msg) . ".");
+				break;
+
+			case "get":
+			case "who":
+
+				if(count($args) < 2){
+					$this->say($this->getNick() . ": Please specify the user host.");
+					return;
+				}
+
+				$perm = $this->getBot()->getPerm($args[1]);
+				if($perm === null){
+					$this->say($this->getNick() . ": " . $this->getUser($args[1]) . " => 0 (User).");
+				} else {
+					$this->say($this->getNick() . ": " . $this->getUser($args[1]) . " => " . $perm . " (" . $this->format($perm) . ").");
+				}
+
+				break;
+
+			case "save":
+
+				$perms = $this->getBot()->getPerms();
+				$settings = $this->getBot()->getSettings();
+
+				$settings["perms"] = $perms;
+
+				file_put_contents(ROOT_DIR . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . CONFIG_NAME . ".json", json_encode($settings));
+
+				$this->say($this->getNick() . ": Saved perms successfully.");
+				break;
+
+			default:
+				$this->say($this->getNick() . ": Subcommand does not exist.");
+				break;
+		}
+	}
 }

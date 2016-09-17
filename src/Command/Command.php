@@ -67,6 +67,11 @@ abstract class Command {
 			$this->getBot()->getLogger()->log($msg, "INFO", "CommandReader");
     }
 
+    public function getUser($data){
+		$dat = explode("!", $data);
+		return isset($dat[0]) ? trim($dat[0], ":") : $data;
+	}
+
 	public function getUsage(){
 		return $this->usage;
 	}
@@ -129,7 +134,7 @@ abstract class Command {
 		$this->plugin = $p;
 	}
 
-	public function format($l){
+	protected function format($l){
 		if($l == 0) return "User";
 		if($l == 1) return "Moderator";
 		if($l == 2) return "Adminstrator";
