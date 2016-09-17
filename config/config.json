@@ -1,5 +1,5 @@
 {
-	"Freenode":{
+	"Server":{
 		"ip":"irc.freenode.net",
 		"ssl":false,
 		"port":6667,

@@ -382,8 +382,10 @@ class PermsCommand extends \Command\Command {
 				$settings = $this->getBot()->getSettings();
 
 				$settings["perms"] = $perms;
+				$set = [];
+				$set["Server"] = $settings;
 
-				file_put_contents(ROOT_DIR . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . CONFIG_NAME . ".json", json_encode($settings, JSON_PRETTY_PRINT));
+				file_put_contents(ROOT_DIR . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . CONFIG_NAME . ".json", json_encode($set, JSON_PRETTY_PRINT));
 
 				$this->say($this->getNick() . ": Saved perms successfully.");
 				break;
