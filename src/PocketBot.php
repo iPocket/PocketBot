@@ -8,11 +8,12 @@ ini_set("default_charset", "utf-8");
 define("ROOT_DIR", \getcwd());
 define("START_TIME", microtime(true));
 
-define("VERSION", "Development");
+define("VERSION", "1.0.0-dev");
 define("NAME", "PocketBot-dev");
 
-
-function dies(){
+$logger = new Logger();
+function stop(){
+	echo \Utils\Terminal::$COLOR_RED . "--------- The bot has been stopped --------" . PHP_EOL;
 	while(true){
 
 	}
@@ -20,42 +21,41 @@ function dies(){
 
 if(php_sapi_name() !== "cli"){
 	trigger_error("You must run " . NAME . " on CLI");
-	dies();
+	stop();
 }
 
 if(!extension_loaded("pthreads")){
 	trigger_error("You must have the pthreads extension.");
-	dies();
+	stop();
 }
 
 $errors = 0;
 
 \Utils\Terminal::init();
 
-$logger = new Logger();
-$logger->log("Starting " . NAME . " v" . VERSION . "...", "INFO", "Main");
+$logger->log("Starting " . NAME . " v" . VERSION . "...", "Info", "Main");
 
 set_time_limit(0);
 set_error_handler(function ($errno, $errstr, $errfile, $errline) use ($logger){
 		global $errors;
 		switch($errno){
 			case E_NOTICE:
-				$errno = "NOTICE";
+				$errno = "Notice";
 				break;
 			case E_USER_ERROR:
-				$errno = "USER ERROR";
+				$errno = "User Error";
 				break;
 			case E_WARNING:
-				$errno = "WARNING";
+				$errno = "Warning";
 				break;
 			case E_ERROR:
-				$errno = "ERROR";
+				$errno = "Error";
 				break;
 			case E_PARSE:
-				$errno = "PARSE ERROR";
+				$errno = "Parse Error";
 				break;
 			default:
-				$errno = "UNKNOWN ERROR";
+				$errno = "Unknown error";
 				break;
 		}
 		$errors++;
@@ -63,23 +63,23 @@ set_error_handler(function ($errno, $errstr, $errfile, $errline) use ($logger){
 	});
 cli_set_process_title(NAME);
 
-$logger->log("Loading Bot config file...", "INFO", "Main");
+$logger->log("Loading Bot config file...", "Info", "Main");
 
 if(!isset($argv[1])){
 	trigger_error("Config file not provided.");
-	dies();
+	stop();
 }
 
 $argv[1] = substr($argv[1], 1);
 
 if(($config = json_decode(file_get_contents(ROOT_DIR . "/config/$argv[1].json"), true)) == null){
 	trigger_error("Config file does not exist or has invalid syntax, make sure you did not include the file extension.");
-	dies();
+	stop();
 }
 
 if(count($config) == 0){
 	trigger_error("Config file is empty, no servers included.");
-	dies();
+	stop();
 }
 
 $manager = new Manager($config);

@@ -18,8 +18,9 @@ class Client extends \Threaded {
 		}
 
 		$this->socket = fsockopen(($this->bot->useSSL() ? "ssl://" . $this->bot->getIP() : $this->bot->getIP()), $this->bot->getPort());
-		if(!$this->isConnected()) {
-			throw new \Exception( 'Unable to connect to server via fsockopen with server: "' . $this->bot->getIP() . '" and port: "' . $this->bot->getPort() . '".' );
+		if(!$this->isConnected()){
+			trigger_error('Unable to connect to server.');
+			stop();
 			return false;
         }
 		if(!empty($this->bot->getPassword())) $this->sendData("PASS " . $this->bot->getPassword());
@@ -84,7 +85,7 @@ class Client extends \Threaded {
 					if(isset($args[3]))
 						if($args[3]{0} == ":") $args[3] = substr($args[3], 1);
 
-					$this->bot->getLogger()->log(Terminal::$COLOR_DARK_AQUA . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . " has joined " . Terminal::$COLOR_PURPLE . $args[2] . Terminal::$COLOR_WHITE, "OUTGOING", $this->bot->getServer());
+					//$this->bot->getLogger()->log(Terminal::$COLOR_DARK_AQUA . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . " has joined " . Terminal::$COLOR_PURPLE . $args[2] . Terminal::$COLOR_WHITE, "OUTGOING", $this->bot->getServer());
 					$log = false;
 					break;
 
@@ -92,7 +93,7 @@ class Client extends \Threaded {
 					if(isset($args[3]))
 						if($args[3]{0} == ":") $args[3] = substr($args[3], 1);
 
-					$this->bot->getLogger()->log(Terminal::$COLOR_DARK_AQUA . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . " has left " . Terminal::$COLOR_PURPLE . $args[2] . Terminal::$COLOR_GREEN . (isset($args[3]) ? " (" . implode(" ", array_slice($args, 3)) . ")" : ""), "OUTGOING", $this->bot->getServer());
+					//$this->bot->getLogger()->log(Terminal::$COLOR_DARK_AQUA . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . " has left " . Terminal::$COLOR_PURPLE . $args[2] . Terminal::$COLOR_GREEN . (isset($args[3]) ? " (" . implode(" ", array_slice($args, 3)) . ")" : ""), "OUTGOING", $this->bot->getServer());
 					$log = false;
 					break;
 

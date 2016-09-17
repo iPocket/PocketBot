@@ -38,7 +38,7 @@ class HelpCommand extends \Command\Command {
 
 	public function exec(){
 		$args = $this->getArgs();
-		$func = $this->getSource(){0} == '#' ? "notice" : "say";
+		$func = $this->getSource()[0] == '#' ? "notice" : "say";
 		$command = (!empty($args[0]) ? ucfirst(strtolower($args[0])) : null);
         $commands = $this->getBot()->getCommands();
 
@@ -201,7 +201,7 @@ class QuitCommand extends \Command\Command {
 
 	public function exec(){
 		$this->getBot()->getConnection()->sendData("QUIT :Quit requested by {$this->getNick()}");
-		exit;
+		stop();
 	}
 }
 
@@ -216,8 +216,8 @@ class RestartCommand extends \Command\Command {
 
 	public function exec(){
 		$this->getBot()->getConnection()->sendData("QUIT :Restart requested by {$this->getNick()}");
-		var_dump(exec(ROOT_DIR . DIRECTORY_SEPARATOR . "start." (\Utils\Utils::getOS() == "win" ? "bat" : "sh")));
-		//die();
+		exec(ROOT_DIR . DIRECTORY_SEPARATOR . "start." . (\Utils\Utils::getOS() == "win" ? "bat" : "sh"));
+		stop();
 	}
 }
 
@@ -236,7 +236,8 @@ class TimeoutCommand extends \Command\Command {
     		return;
     	}
         $this->getBot()->getConnection()->sendData("QUIT :Timeout for {$this->getArgs()[0]} second(s) requested by " . $this->getNick());
-        sleep($val);
+        $this->getBot()->getConnection()->disconnect();
+        sleep($this->getArgs()[0]);
         $this->getBot()->init();
 	}
 }

@@ -44,12 +44,12 @@ class Bot {
 		$this->channels = (array) $settings['channels'];
 		$this->perms = (array) $settings['perms'];
 		$this->logger = $logger;
+		$this->connection = new Client($this);
 	}
 
 	public function init(){
 		$this->joined = false;
-		$this->connection = new Client($this);
-		$this->getLogger()->log("Loading plugins...", "INFO", "Main");
+		$this->getLogger()->log("Loading plugins...", "Info", "Main");
 		foreach(glob(ROOT_DIR . DIRECTORY_SEPARATOR . "plugins" . DIRECTORY_SEPARATOR . "*.php") as $p){
 			$plugin = "plugins\\" . basename($p, ".php");
 			$p = new $plugin();
@@ -105,7 +105,7 @@ class Bot {
 
 	public function addPlugin(Plugin\Plugin $p){
 		$p->setBot($this);
-		$this->getLogger()->log("Loading plugin " . Terminal::$COLOR_GREEN . $p->getName() . Terminal::$COLOR_WHITE . " v" . Terminal::$COLOR_YELLOW . $p->getVersion() . Terminal::$COLOR_WHITE . " by " . Terminal::$COLOR_RED . $p->getAuthor() . Terminal::$COLOR_WHITE . "...", "INFO", "Main");
+		$this->getLogger()->log("Loading plugin " . Terminal::$COLOR_GREEN . $p->getName() . Terminal::$COLOR_WHITE . " v" . Terminal::$COLOR_YELLOW . $p->getVersion() . Terminal::$COLOR_WHITE . " by " . Terminal::$COLOR_RED . $p->getAuthor() . Terminal::$COLOR_WHITE . "...", "Info", "Main");
 		$p->onEnable();
 		$this->plugins[$p->getName()] = $p;
 	}
@@ -254,10 +254,7 @@ class Bot {
 			}
 
 
-			if($args[0] == "PING"){
-				$this->getConnection()->sendData("PONG $args[1]", false);
-				$log = false;
-			}
+			
 
 			if(isset($args[1])){
 				switch($args[1]){
@@ -297,6 +294,8 @@ class Bot {
 							if($args[3]{0} == ":") $args[3] = substr($args[3], 1);
 
 						$this->getLogger()->log(Terminal::$COLOR_DARK_AQUA . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . " has joined " . Terminal::$COLOR_PURPLE . $args[2] . Terminal::$COLOR_WHITE, "INCOMING", $this->getServer());
+
+						if($this->getUser($args[0]) == $this->getNick()) $this->channels[$args[2]] = null;
 						$log = false;
 						break;
 
@@ -350,6 +349,9 @@ class Bot {
 					case "266":
 					case "481":
 					case "461":
+					case "477":
+					case "421":
+
 						$this->getLogger()->log(Terminal::$COLOR_DARK_AQUA . "--" . Terminal::$COLOR_RED  . $this->getUser($args[0]) . Terminal::$COLOR_DARK_AQUA . "-- " . trim(implode(" ", array_slice($args, 3)), ":"), "INCOMING", $this->getServer());
 						$log = false;
 						break;
@@ -389,15 +391,22 @@ class Bot {
 
 					case "433":
 						$this->counter++;
-						$this->getLogger()->log(Terminal::$COLOR_DARK_AQUA . "Nickname {$args[2]} already in use, retrying with {$this->getNick()}{$this->counter}...", "INCOMING", $this->getServer());
+						$this->getLogger()->log(Terminal::$COLOR_DARK_AQUA . "Nickname {$args[3]} already in use, retrying with {$this->getNick()}{$this->counter}...", "INCOMING", $this->getServer());
 						$this->getConnection()->sendData("NICK " . $this->getNick() . $this->counter);
 						$log = false;
 						break;
 					default:
+						$log = true;
 						break;
 					}
 				}
-		if(!isset($log)) $this->getLogger()->log($data, "INCOMING", $this->getServer());
+				
+				if($args[0] == "PING"){
+					$this->getConnection()->sendData("PONG $args[1]", false);
+					$log = false;
+				}
+
+		 if($log == true) $this->getLogger()->log($data, "INCOMING", $this->getServer());
 		} while(true);
 	}
 }

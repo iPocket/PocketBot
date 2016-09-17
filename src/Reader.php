@@ -22,8 +22,8 @@ class Reader extends \Worker {
 
 			if($args[0] === "/switch"){
 				$this->switch = $args[1];
-			} elseif($this->switch === "~" || ($data{0} === "/")){
-				$this->bot->getConnection()->sendData($data{0} === "/" ? substr($data, 1) : $data);
+			} elseif($this->switch === "~" || ($data[0] === "/")){
+				$this->bot->getConnection()->sendData($data[0] === "/" ? substr($data, 1) : $data);
 			} elseif($this->switch !== "~"){
 				$this->bot->getConnection()->sendData("PRIVMSG $this->switch :$data");
 			}

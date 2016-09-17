@@ -8,7 +8,7 @@ spl_autoload_register(function ($class){
 	} elseif(file_exists($two)){
 		require $two;
 	} else {
-		echo "Fail";
+		echo "Class Not found.";
 	}
 });
 
