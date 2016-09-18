@@ -1,6 +1,11 @@
 # PocketBot
 PocketBot is an IRC (Internet Relay Chat) Bot written in PHP.
 
+## Installation:
+- Get your PHP Binary or compile it.
+- Clone this repository or download the ZIP.
+- Make sure to use the bin folder.
+
 ## Running:
 ### Windows:
 ```bat
