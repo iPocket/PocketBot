@@ -87,6 +87,20 @@ class Logger extends \Thread {
 		$msg = str_replace(IRCFormat::$COLOR_PINK, "", $msg);
 		$msg = str_replace(IRCFormat::$COLOR_GRAY, "", $msg);
 		$msg = str_replace(IRCFormat::$COLOR_LIGHT_GRAY, "", $msg);
+
+		//Another ones, so \0034 can be also escaped.
+
+		$msg = str_replace("\0030", "", $msg);
+		$msg = str_replace("\0031", "", $msg);
+		$msg = str_replace("\0032", "", $msg);
+		$msg = str_replace("\0033", "", $msg);
+		$msg = str_replace("\0034", "", $msg);
+		$msg = str_replace("\0035", "", $msg);
+		$msg = str_replace("\0036", "", $msg);
+		$msg = str_replace("\0037", "", $msg);
+		$msg = str_replace("\0038", "", $msg);
+		$msg = str_replace("\0039", "", $msg);
+		
 		return $msg;
 	}
 }
