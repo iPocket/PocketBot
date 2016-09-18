@@ -35,3 +35,12 @@ modify config to join the channel and other.
 run the bot.
 
 start using the bot :)
+
+## Features:
+- It allows a developer to extend it and add features.
+- It's OOP.
+- It can be used by users that don't know PHP.
+- It reads STDIN to send the data to server or message channels/users.
+- It converts some plain data to human readable.
+- It allows developers to add commands and listeners.
+- It has an eval command.
