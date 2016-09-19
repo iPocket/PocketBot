@@ -7,6 +7,7 @@ class Client extends \Threaded {
 
 	private $socket;
 	public $bot;
+	private $reconnects = 0;
 
 	public function __construct($bot){
 		$this->bot = $bot;
@@ -19,9 +20,15 @@ class Client extends \Threaded {
 
 		$this->socket = fsockopen(($this->bot->useSSL() ? "ssl://" . $this->bot->getIP() : $this->bot->getIP()), $this->bot->getPort());
 		if(!$this->isConnected()){
-			trigger_error('Unable to connect to server.');
+			$this->reconnects++;
+			if($this->reconnects < 30){
+				trigger_error('Unable to connect to server, This attempt was ' . $this->reconnects . ', Retrying...');
+				sleep(3);
+				$this->connect();
+				return false;
+			}
+			trigger_error('Maximium reconnects (30) reached, stopping.');
 			stop();
-			return false;
         }
 		if(!empty($this->bot->getPassword())) $this->sendData("PASS " . $this->bot->getPassword());
 		$this->sendData('USER ' . $this->bot->getNick() . ' Layne-Obserdia.de ' . $this->bot->getNick() . ' :' . $this->bot->getName());
@@ -45,7 +52,12 @@ class Client extends \Threaded {
 	}
 
 	public function getData(){
-		$output = fgets($this->socket);
+		if(($output = fgets($this->socket)) == false){
+			if(!$this->isConnected()){
+				trigger_error("Disconnected.");
+				$this->connect();
+			}
+		}
 		//$this->bot->download += strlen($output);
 		return trim($output, "\r\n");
 	}
@@ -135,7 +147,12 @@ class Client extends \Threaded {
 				}
 			}
 		if(!isset($log)) $this->bot->getLogger()->log($data, "OUTGOING", $this->bot->getServer());
-		fwrite($this->socket, $data . "\r\n");
+		if(@fwrite($this->socket, $data . "\r\n") == false){
+			if(!$this->isConnected()){
+				trigger_error("Disconnected.");
+				$this->connect();
+			}
+		}
 		//$this->bot->upload += strlen($data);
 		return;
 	}
