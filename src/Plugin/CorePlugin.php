@@ -5,12 +5,8 @@ use Utils\IRCFormat;
 
 class CorePlugin extends PluginBase {
 
-	protected $name = "Core";
-	protected $author = "System";
-	protected $version = "1.0";
-
 	public function onEnable(){
-		$this->log("Adding Core commands...");
+		//$this->log("Adding Core commands...");
 
 		$this->addCommand(new HelpCommand());
 		$this->addCommand(new EvalCommand());
@@ -24,6 +20,7 @@ class CorePlugin extends PluginBase {
 		$this->addCommand(new TimeoutCommand());
 		$this->addCommand(new StatsCommand());
 		$this->addCommand(new PermsCommand());
+		$this->addCommand(new PluginsCommand());
 	}
 }
 
@@ -34,7 +31,7 @@ class HelpCommand extends \Command\Command {
 	protected $amount = array(0, 1);
 	protected $help = "Shows information about commands";
 	protected $usage = "Help [Command]";
-	public $aliases = ['?'];
+	public $aliases = ['?', "Commands"];
 	protected $secret = false;
 
 	public function exec(){
@@ -42,11 +39,11 @@ class HelpCommand extends \Command\Command {
 		$func = $this->getSource()[0] == '#' ? "notice" : "say";
 		$command = (!empty($args[0]) ? ucfirst(strtolower($args[0])) : null);
         $commands = $this->getBot()->getCommands();
+        ksort($commands);
+        var_dump($commands);
 
         if($command == null){
         	$output = array();
-        	$commands = $commands;
-        	ksort($commands);
         	foreach($commands as $name => $cmd)
         		if($cmd->isSecret() == false) $output[] = $this->getColor($cmd) . $name . IRCFormat::$FORMAT_RESET;
         	$cmds = implode(IRCFormat::$COLOR_BLUE . " | " . IRCFormat::$FORMAT_RESET, $output);
@@ -239,7 +236,7 @@ class TimeoutCommand extends \Command\Command {
         $this->getBot()->getConnection()->sendData("QUIT :Timeout for {$this->getArgs()[0]} second(s) requested by " . $this->getNick());
         $this->getBot()->getConnection()->disconnect();
         sleep($this->getArgs()[0]);
-        $this->getBot()->init();
+        $this->getBot()->getConnection()->connect();
 	}
 }
 
@@ -303,7 +300,7 @@ class PermsCommand extends \Command\Command {
 	protected $name = "Perms";
 	protected $level = 4;
 	protected $amount = array(1, 2, 3);
-	protected $help = "Lists all the permissions";
+	protected $help = "Manages permissions";
 	protected $usage = "Perms <add/remove/list/get/save> [host] [level]";
 	public $aliases = ['Levels', 'Permissions'];
 	protected $secret = true;
@@ -388,6 +385,76 @@ class PermsCommand extends \Command\Command {
 				file_put_contents(ROOT_DIR . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . CONFIG_NAME . ".json", json_encode($set, JSON_PRETTY_PRINT));
 
 				$this->say($this->getNick() . ": Saved perms successfully.");
+				break;
+
+			default:
+				$this->say($this->getNick() . ": Subcommand does not exist.");
+				break;
+		}
+	}
+}
+
+class PluginsCommand extends \Command\Command {
+
+	protected $name = "Plugins";
+	protected $level = 2;
+	protected $amount = array(1, 2);
+	protected $help = "Manages plugins";
+	protected $usage = "Plugins <enable/disable/list> [Plugin]";
+	public $aliases = ['Plugs', 'Addons'];
+	protected $secret = true;
+
+	public function exec(){
+		$args = $this->getArgs();
+
+		switch(strtolower($args[0])){
+
+			case "enable":
+			case "add":
+			case "new":
+
+				if(count($args) < 2){
+					$this->say($this->getNick() . ": Please specify the plugin name.");
+					return;
+				}
+
+				$file = ROOT_DIR . DIRECTORY_SEPARATOR . "plugins" . DIRECTORY_SEPARATOR . $args[1] . ".json";
+				if(file_exists($file)){
+					$this->getBot()->addPlugin(json_decode(file_get_contents($file), true));
+					$this->say($this->getNick() . ": Plugin '" . $this->getBot()->getPlugin(ucfirst($args[1]))->getName() .  "' Enabled.");
+				} else {
+					$this->say($this->getNick() . ": Plugin not found.");
+				}
+
+				break;
+
+			case "disable":
+			case "remove":
+			case "delete":
+			case "rm":
+
+				if(count($args) < 2){
+					$this->say($this->getNick() . ": Please specify the plugin name.");
+					return;
+				}
+
+				if($this->getBot()->getPlugin($args[1]) !== null){
+					$this->say($this->getNick() . ": Plugin '$args[1]' Disabled.");
+					$this->getBot()->removePlugin($this->getBot()->getPlugin($args[1]));
+				} else {
+					$this->say($this->getNick() . ": That plugin does not exist or not enabled.");
+				}
+				break;
+
+			case "list":
+			case "all":
+
+				$msg = [];
+				foreach($this->getBot()->getPlugins() as $name => $plugin){
+					$msg[] = $name . " v" . $plugin->getVersion() . " by " . $plugin ->getAuthor();
+				}
+
+				$this->say($this->getNick() . ": " . implode(" | ", $msg));
 				break;
 
 			default:

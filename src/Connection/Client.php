@@ -22,12 +22,12 @@ class Client extends \Threaded {
 		if(!$this->isConnected()){
 			$this->reconnects++;
 			if($this->reconnects < 30){
-				trigger_error('Unable to connect to server, This attempt was ' . $this->reconnects . ', Retrying...');
+				$this->bot->error('Unable to connect to server, This attempt was ' . $this->reconnects . ', Retrying...', E_NOTICE);
 				sleep(3);
 				$this->connect();
 				return false;
 			}
-			trigger_error('Maximium reconnects (30) reached, stopping.');
+			$this->bot->error('Maximium reconnects (30) reached, stopping.', E_NOTICE);
 			stop();
         }
 		if(!empty($this->bot->getPassword())) $this->sendData("PASS " . $this->bot->getPassword());
@@ -54,7 +54,7 @@ class Client extends \Threaded {
 	public function getData(){
 		if(($output = fgets($this->socket)) == false){
 			if(!$this->isConnected()){
-				trigger_error("Disconnected.");
+				$this->bot->error("Disconnected", E_NOTICE);
 				$this->connect();
 			}
 		}
@@ -149,7 +149,7 @@ class Client extends \Threaded {
 		if(!isset($log)) $this->bot->getLogger()->log($data, "OUTGOING", $this->bot->getServer());
 		if(@fwrite($this->socket, $data . "\r\n") == false){
 			if(!$this->isConnected()){
-				trigger_error("Disconnected.");
+				$this->bot->error("Disconnected", E_NOTICE);
 				$this->connect();
 			}
 		}

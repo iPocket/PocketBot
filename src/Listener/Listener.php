@@ -4,7 +4,7 @@ namespace Listener;
 abstract class Listener {
 
 	private $plugin;
-	protected $keywords = '';
+	protected $keywords = [];
 	private $bot;
 	private $data = '';
 	private $args = [];
@@ -26,7 +26,7 @@ abstract class Listener {
 	}
 
 	public function getKeywords(){
-		return (string) $this->keywords;
+		return (array) $this->keywords;
 	}
 
 	public function getData(){

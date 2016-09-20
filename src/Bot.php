@@ -54,16 +54,8 @@ class Bot {
 			$p = json_decode(file_get_contents($file), true);
 
 			$this->addPlugin($p);
-			/*try{
-				$p = new $plugin();
-				if($p instanceof \Plugin\Plugin){
-					$this->addPlugin($p);
-				}
-			} catch(\ParseError $p){
-				trigger_error($p->getMessage());
-			}*/
 		}
-		$this->addPlugin(array("name" => "Core", "version" => "1.0.0", "author" => "System", "main" => "Plugin\\CorePlugin"));
+		$this->addPlugin(array("name" => "Core", "version" => "N/A", "author" => "System", "main" => "Plugin\\CorePlugin"));
 		$this->getConnection()->connect();
 		$this->main();
 	}
@@ -128,7 +120,7 @@ class Bot {
 				//trigger_error();
 			}
 		} catch(\ParseError $e){
-			trigger_error($e->getMessage());
+			$this->error($e->getMessage() . " in " . $e->getFile() . " at line " . $e->getLine(), E_PARSE);
 			$this->getLogger()->log("Disabling plugin " . Terminal::$COLOR_GREEN . $json['name'] . Terminal::$COLOR_WHITE . " v" . Terminal::$COLOR_YELLOW . $json['version'] . Terminal::$COLOR_WHITE . " by " . Terminal::$COLOR_RED . $json['author'] . Terminal::$COLOR_WHITE . "...", "Info", "Main");
 			return false;
 		}
@@ -296,6 +288,35 @@ class Bot {
 		}
 	}
 
+	public function error($error, $errno){
+		global $errors;
+		switch($errno){
+			case E_NOTICE:
+				$errno = "Notice";
+				break;
+			case E_USER_ERROR:
+				$errno = "User Error";
+				break;
+			case E_WARNING:
+				$errno = "Warning";
+				break;
+			case E_ERROR:
+				$errno = "Error";
+				break;
+			case E_PARSE:
+				$errno = "Parse Error";
+				break;
+			case E_USER_NOTICE:
+				$errno = "User Notice";
+				break;
+			default:
+				$errno = "Unknown error";
+				break;
+		}
+		$errors++;
+		$this->getLogger()->log($error, $errno, \Utils\Terminal::$COLOR_RED . "Error" . \Utils\Terminal::$COLOR_GOLD);
+	}
+
 	private function main(){
 		do {
 			$data = $this->getConnection()->getData();
@@ -309,8 +330,10 @@ class Bot {
 			if($data{0} == ":") $data = substr($data, 1);
 
 			foreach($this->getListeners() as $name => $listener){
-				if($listener->getKeywords() == $args[1] || $listener->getKeywords() == "ANY"){
-					$this->executeListener($data, $args, $name);
+				foreach($listener->getKeywords() as $keyword){
+					if($keyword == $args[1] || $keyword == "ANY"){
+						$this->executeListener($data, $args, $name);
+					}
 				}
 			}
 
@@ -472,7 +495,7 @@ class Bot {
 				}
 
 				if($args[0] == "PING"){
-					$this->getConnection()->sendData("PONG $args[1]", false);
+					$this->getConnection()->sendData("PONG $args[1]");
 					$log = false;
 				}
 

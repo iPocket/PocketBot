@@ -9,15 +9,13 @@ ini_set("default_charset", "utf-8");
 define("ROOT_DIR", \getcwd());
 define("START_TIME", microtime(true));
 
-define("VERSION", "1.0.0-dev");
-define("NAME", "PocketBot-dev");
+define("VERSION", "5.0.0");
+define("NAME", "PocketBot");
 
 $logger = new Logger();
-function stop(){
-	echo \Utils\Terminal::$COLOR_RED . "--------- The bot has been stopped --------" . PHP_EOL;
-	while(true){
 
-	}
+function stop(){
+	exit(1);
 }
 
 if(php_sapi_name() !== "cli"){
@@ -54,6 +52,9 @@ set_error_handler(function ($errno, $errstr, $errfile, $errline) use ($logger){
 				break;
 			case E_PARSE:
 				$errno = "Parse Error";
+				break;
+			case E_USER_NOTICE:
+				$errno = "User Notice";
 				break;
 			default:
 				$errno = "Unknown error";
