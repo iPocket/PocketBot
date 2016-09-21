@@ -25,7 +25,7 @@ class Logger extends \Thread {
 	}
 
 	public function log($data, $stats = "INFO", $server){
-		$msg = Terminal::$COLOR_AQUA . "[" . date("h:m:s") . "] " . Terminal::$FORMAT_RESET . Terminal::$COLOR_GOLD . "[$server/$stats]" . Terminal::$COLOR_DARK_GREEN . ": " . Terminal::$FORMAT_RESET . Terminal::$COLOR_WHITE . $data . Terminal::$FORMAT_RESET . PHP_EOL;
+		$msg = Terminal::$COLOR_AQUA . "[" . date("h:i:s") . "] " . Terminal::$FORMAT_RESET . Terminal::$COLOR_GOLD . "[$server/$stats]" . Terminal::$COLOR_DARK_GREEN . ": " . Terminal::$FORMAT_RESET . Terminal::$COLOR_WHITE . $data . Terminal::$FORMAT_RESET . PHP_EOL;
 		echo self::removeFormatCodes($msg);
 		fwrite($this->handler, self::format($msg));
 		return;
@@ -100,7 +100,7 @@ class Logger extends \Thread {
 		$msg = str_replace("\0037", "", $msg);
 		$msg = str_replace("\0038", "", $msg);
 		$msg = str_replace("\0039", "", $msg);
-		
+
 		return $msg;
 	}
 }
