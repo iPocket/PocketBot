@@ -63,6 +63,7 @@ set_error_handler(function ($errno, $errstr, $errfile, $errline) use ($logger){
 		$errors++;
 		$logger->log("$errstr in $errfile at line $errline", $errno, \Utils\Terminal::$COLOR_RED . "Error" . \Utils\Terminal::$COLOR_GOLD);
 	});
+
 cli_set_process_title(NAME);
 
 $logger->log("Loading Bot config file...", "Info", "Main");
@@ -85,6 +86,9 @@ if(count($config) == 0){
 }
 
 define("CONFIG_NAME", $argv[1]);
+$logger->log("Loaded Bot config file.", "Info", "Main");
+
+$logger->log("Starting bot...", "Info", "Main");
 
 $manager = new Manager($config);
 $manager->init($logger);

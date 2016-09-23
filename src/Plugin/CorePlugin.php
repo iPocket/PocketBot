@@ -6,11 +6,8 @@ use Utils\IRCFormat;
 class CorePlugin extends PluginBase {
 
 	public function onEnable(){
-		//$this->log("Adding Core commands...");
-
 		$this->addCommand(new HelpCommand());
 		$this->addCommand(new EvalCommand());
-		$this->addCommand(new PingCommand());
 		$this->addCommand(new RawCommand());
 		$this->addCommand(new SayCommand());
 		$this->addCommand(new JoinCommand());
@@ -21,6 +18,7 @@ class CorePlugin extends PluginBase {
 		$this->addCommand(new StatsCommand());
 		$this->addCommand(new PermsCommand());
 		$this->addCommand(new PluginsCommand());
+		$this->addCommand(new RepliesCommand());
 	}
 }
 
@@ -40,7 +38,6 @@ class HelpCommand extends \Command\Command {
 		$command = (!empty($args[0]) ? ucfirst(strtolower($args[0])) : null);
         $commands = $this->getBot()->getCommands();
         ksort($commands);
-        var_dump($commands);
 
         if($command == null){
         	$output = array();
@@ -106,24 +103,10 @@ class EvalCommand extends \Command\Command {
 	public function exec(){
 		$output = $this->getBot()->evaluate(implode(" ", $this->getArgs()));
 		if($output[0] !== false){
-			$this->say($this->getNick() . ": " . (!empty($output[1]) ? $output[1] : IRCFormat::$FORMAT_ITALIC . "No output."));
+			$this->say($this->getNick() . ": " . (!empty($output[1]) ? str_replace(array("\r", "\n"), " | ", $output[1]) : IRCFormat::$FORMAT_ITALIC . "No output."));
 		} else {
 			$this->say($this->getNick() . ": There was a syntax error with your code. Error: $output[1]");
 		}
-	}
-}
-
-class PingCommand extends \Command\Command {
-
-	protected $name = "Ping";
-	protected $level = 0;
-	protected $amount = 0;
-	protected $help = "Checks if I am working";
-	protected $usage = "Ping";
-	protected $secret = true;
-
-	public function exec(){
-		$this->say($this->getNick() . ": Pong!");
 	}
 }
 
@@ -252,7 +235,7 @@ class StatsCommand extends \Command\Command {
 	public function exec() {
     	global $errors;
     	$time = $this->toTime(microtime(true) - START_TIME);
-        $this->say($this->getNick() . ": I've been running since " . date("l jS F \@ h:m:s A", START_TIME) . " and been running for " . $time . " with " . ($errors == 0 ? "no" : $errors) . " error(s) occured.");
+        $this->say($this->getNick() . ": I've been running since " . date("l jS F \@ h:i:s A", START_TIME) . " and been running for " . $time . " with " . ($errors == 0 ? "no" : $errors) . " error(s) occured.");
     }
 
     private function toTime($seconds){
@@ -452,6 +435,80 @@ class PluginsCommand extends \Command\Command {
 				$msg = [];
 				foreach($this->getBot()->getPlugins() as $name => $plugin){
 					$msg[] = $name . " v" . $plugin->getVersion() . " by " . $plugin ->getAuthor();
+				}
+
+				$this->say($this->getNick() . ": " . implode(" | ", $msg));
+				break;
+
+			default:
+				$this->say($this->getNick() . ": Subcommand does not exist.");
+				break;
+		}
+	}
+}
+
+class RepliesCommand extends \Command\Command {
+
+	protected $name = "Replies";
+	protected $level = 2;
+	protected $amount = -1;
+	protected $help = "Manages replies";
+	protected $usage = "Replies <add/remove/list> [Name] [Reply]";
+	public $aliases = ['Reps', 'Rps'];
+	protected $secret = true;
+
+	public function exec(){
+		$args = $this->getArgs();
+
+		if(!isset($args[0])){
+			$this->say($this->getNick() . ": Please specify the subcommand.");
+			return;
+		}
+
+		switch(strtolower($args[0])){
+
+			case "enable":
+			case "add":
+			case "new":
+
+				if(count($args) < 3){
+					$this->say($this->getNick() . ": Please specify the reply name and the reply.");
+					return;
+				}
+
+				if($this->getBot()->getCommand(ucfirst($args[1])) == null){
+					$this->getBot()->addReply($args[1], implode(" ", array_slice($args, 2)));
+					$this->say($this->getNick() . ": Reply $args[1] added.");
+				} else {
+					$this->say($this->getNick() . ": There is already a command with the name of the reply.");
+				}
+
+				break;
+
+			case "disable":
+			case "remove":
+			case "delete":
+			case "rm":
+
+				if(count($args) < 2){
+					$this->say($this->getNick() . ": Please specify the reply name.");
+					return;
+				}
+
+				if($this->getBot()->getReply(ucfirst($args[1])) !== null){
+					$this->say($this->getNick() . ": Reply '$args[1]' Removed.");
+					$this->getBot()->removeReply(ucfirst($args[1]));
+				} else {
+					$this->say($this->getNick() . ": That reply does not exist.");
+				}
+				break;
+
+			case "list":
+			case "all":
+
+				$msg = [];
+				foreach($this->getBot()->getReplies() as $name => $reply){
+					$msg[] = $name . " => " . $reply;
 				}
 
 				$this->say($this->getNick() . ": " . implode(" | ", $msg));

@@ -13,6 +13,7 @@ class Bot {
 	private $plugins = [];
 	private $commands = [];
 	public $aliases = [];
+	public $replies = [];
 	private $listeners = [];
 
 	private $joined = false;
@@ -104,6 +105,11 @@ class Bot {
 
 	public function addPlugin(array $json){
 
+		if(isset($this->plugins[$json['name']])){
+			$this->getLogger()->log("Could not load plugin " . $json[$name] . " : Plugin already exists.");
+			return false;
+		}
+
 		$this->getLogger()->log("Enabling plugin " . Terminal::$COLOR_GREEN . $json['name'] . Terminal::$COLOR_WHITE . " v" . Terminal::$COLOR_YELLOW . $json['version'] . Terminal::$COLOR_WHITE . " by " . Terminal::$COLOR_RED . $json['author'] . Terminal::$COLOR_WHITE . "...", "Info", "Main");
 
 		try {
@@ -117,7 +123,8 @@ class Bot {
 				$class->setBot($this);
 				$class->onEnable();
 			} else {
-				//trigger_error();
+				$this->error("The main plugin class is not using the PluginBase.");
+				return false;
 			}
 		} catch(\ParseError $e){
 			$this->error($e->getMessage() . " in " . $e->getFile() . " at line " . $e->getLine(), E_PARSE);
@@ -196,6 +203,22 @@ class Bot {
 		$listener = $this->getListener($name);
 		if($listener == null) return;
 		$listener->execute($data, $args);
+	}
+
+	public function getReplies(){
+		return $this->replies;
+	}
+
+	public function getReply($r){
+		return isset($this->replies[$r]) ? $this->replies[$r] : null;
+	}
+
+	public function addReply($name, $reply){
+		$this->replies[ucfirst($name)] = $reply;
+	}
+
+	public function removeReply($r){
+		unset($this->replies[$r]);
 	}
 
 	public function getConnection(){
@@ -284,7 +307,7 @@ class Bot {
 			return [true, ob_get_clean()];
 		} catch (\ParseError $e){
 			ob_end_clean();
-			return [false, $e->getMessage()];
+			return [false, $e->getMessage() . " in " . $e->getFile() . " at line " . $e->getLine()];
 		}
 	}
 
@@ -318,6 +341,10 @@ class Bot {
 	}
 
 	private function main(){
+
+		$this->addReply("Ping", "%nick%: Pong!");
+		$this->addReply("Echo", " %args%");
+
 		do {
 			$data = $this->getConnection()->getData();
 			$args = explode(" ", $data);
@@ -369,6 +396,13 @@ class Bot {
 							if(isset($this->aliases[$command])) $command = $this->aliases[$command];
 							if($this->getCommand($command) !== null){
 								$this->executeCommand($data, array_slice($msg, 1), $source, $command);
+							} elseif(isset($this->replies[$command])){
+								$reply = $this->replies[$command];
+								$reply = str_replace("%nick%", $this->getUser($args[0]), $reply);
+								$reply = str_replace("%source%", $source, $reply);
+								$reply = str_replace("%msg%", implode(" ", $msg), $reply);
+								$reply = str_replace("%args%", implode(" ", array_slice($msg, 1)), $reply);
+								$this->getConnection()->sendData("PRIVMSG $source :" . $reply);
 							} else {
 								$this->getConnection()->sendData("PRIVMSG $source :{$this->getUser($args[0])}: Unknown command");
 							}

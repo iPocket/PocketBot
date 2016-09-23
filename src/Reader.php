@@ -22,7 +22,7 @@ class Reader extends \Worker {
 
 			if($args[0] === "/switch"){
 				$this->switch = $args[1];
-			} elseif($this->switch === "~" || ($data[0] === "/")){
+			} elseif($this->switch === "~" || (($data[0] === "/") && ($args[0] !== "/me"))){
 				$this->bot->getConnection()->sendData($data[0] === "/" ? substr($data, 1) : $data);
 			} elseif($this->switch !== "~"){
 				if($args[0] !== "/me")

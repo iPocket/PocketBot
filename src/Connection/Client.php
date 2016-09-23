@@ -31,7 +31,7 @@ class Client extends \Threaded {
 			stop();
         }
 		if(!empty($this->bot->getPassword())) $this->sendData("PASS " . $this->bot->getPassword());
-		$this->sendData('USER ' . $this->bot->getNick() . ' Layne-Obserdia.de ' . $this->bot->getNick() . ' :' . $this->bot->getName());
+		$this->sendData('USER ' . $this->bot->getNick() . ' * ' . "*" . ' :' . $this->bot->getName());
 		$this->sendData("NICK " . $this->bot->getNick());
         return true;
 	}
