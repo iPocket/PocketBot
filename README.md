@@ -19,7 +19,7 @@ Run the start.bat (recommended)
 ### Linux:
 ```sh
 $ cd PocketBot
-$ php ./start.php  -config --enable-ansi
+$ php ./start.php -config --enable-ansi
 ```
 OR
 
